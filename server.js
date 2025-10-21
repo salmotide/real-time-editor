@@ -9,7 +9,7 @@ app.use(cors());
 const server = http.createServer(app);
 const wss = new websocket.Server({ server });
 
-let documents = "lmjoijoijo";
+let documents = "";
 
 wss.on('connection', (ws) => {
     console.log('Ada yang masuk');
