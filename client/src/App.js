@@ -1,53 +1,57 @@
 import React, { useState, useEffect} from 'react';
 import './App.css';
 
+const socket = new WebSocket('ws://localhost:5000');
+
+const InputChange = (setter) =>{
+const handleInputChange = (e) => {
+    const newDocuments = e.target.value;
+    setter(newDocuments);
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      console.log("Kirim")
+      socket.send(JSON.stringify({ type: 'update', data: newDocuments }));
+    }
+};
+return handleInputChange
+}
+
 
 function App() {
   const [ documents, setDocuments ] = useState("");
-  const [ sockets, setSockets ] = useState(null);
+  //const [ socket, setsocket ] = useState(null);
   
   useEffect(() => {
-    const newsocket = new WebSocket('ws://localhost:5000');
-    setSockets(newsocket);
 
-    newsocket.onopen = () => {
+
+    socket.onopen = () => {
       console.log('WebSocket Client nyambung');
     };
 
-    newsocket.onmessage = (message) => {
+    socket.onmessage = (message) => {
       try {
         const data = JSON.parse(message.data);
         if (data.type === 'init') {
-          setDocuments(data.documents);
-          setSockets(false);
+          setDocuments(data.data);
+          // setsocket(false);
         } else if (data.type === 'update') {
-          setDocuments(data.documents);
+          setDocuments(data.data);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
     };
 
-    newsocket.onclose = () => {
+    socket.onclose = () => {
       console.log('WebSocket Client disconnected');
     };
 
-    newsocket.onerror = (error) => {
+    socket.onerror = (error) => {
       console.error('WebSocket Error:', error);
     };
 
-    return () => {
-      newsocket.close();
-    };
   }, []);
 
-  const handleInputChange = (e) => {
-    const newDocuments = e.target.value;
-    setDocuments(newDocuments);
-    if (sockets && sockets.readyState === WebSocket.OPEN) {
-      sockets.send(JSON.stringify({ type: 'update', documents: newDocuments }));
-    }
-  };
+  const handleInputChange = InputChange(setDocuments);
 
   return (
     <div className="App">
@@ -63,3 +67,4 @@ function App() {
 }
 
 export default App;
+// ...?

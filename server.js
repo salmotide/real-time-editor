@@ -9,7 +9,7 @@ app.use(cors());
 const server = http.createServer(app);
 const wss = new websocket.Server({ server });
 
-let documents = "";
+let documents = "lmjoijoijo";
 
 wss.on('connection', (ws) => {
     console.log('Ada yang masuk');
@@ -20,10 +20,11 @@ wss.on('connection', (ws) => {
         try {
             const parsedMessage = JSON.parse(message);
             if (parsedMessage.type === 'update') {
+                console.log(`Data: ${parsedMessage.type} ${parsedMessage.data}`);
                 documents = parsedMessage.data;
                 wss.clients.forEach((client) => {
                     if (client.readyState === websocket.OPEN) {
-                        client.send(JSON.stringify({ type: 'update', data: documents }));
+                        client.send(JSON.stringify({ type: 'update', data: documents || '' }));
                     }
                 });
             }
